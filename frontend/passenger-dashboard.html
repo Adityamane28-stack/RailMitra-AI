@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RailMitra AI - Passenger Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #1d4ed8;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #1d4ed8;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+
+        .profile {
+            margin-top: 15px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            color: #555;
+        }
+
+        .new-complaint {
+            margin-bottom: 25px;
+        }
+
+        .complaint-btn {
+            background: #1d4ed8;
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .complaint-btn:hover {
+            background: #1e40af;
+        }
+
+        .complaints-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .complaints-box h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .complaint-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .complaint-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .complaint-id {
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .in-progress {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .resolved {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detail {
+            color: #555;
+        }
+
+        .description {
+            margin-top: 12px;
+            color: #444;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .error {
+            text-align: center;
+            color: red;
+            padding: 20px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px;
+            }
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .user-area {
+                font-size: 13px;
+                gap: 8px;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🚆 RailMitra AI
+    </div>
+
+    <div class="user-area">
+
+        <span id="headerName">
+            Passenger
+        </span>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<div class="container">
+
+    <!-- Welcome Section -->
+
+    <div class="welcome">
+
+        <h2>
+            Welcome, <span id="passengerName">Passenger</span> 👋
+        </h2>
+
+        <p>
+            Manage your railway complaints and check their status.
+        </p>
+
+        <div class="profile">
+
+            <div>
+                <strong>Username:</strong>
+                <span id="username">-</span>
+            </div>
+
+            <div>
+                <strong>Phone:</strong>
+                <span id="phone">-</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- New Complaint -->
+
+    <div class="new-complaint">
+
+        <button
+            class="complaint-btn"
+            onclick="newComplaint()"
+        >
+            + Register New Complaint
+        </button>
+
+    </div>
+
+
+    <!-- My Complaints -->
+
+    <div class="complaints-box">
+
+        <h2>
+            My Complaints
+        </h2>
+
+        <div id="complaintsContainer">
+
+            <div class="loading">
+                Loading complaints...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // ==========================================
+    // CHECK LOGIN
+    // ==========================================
+
+    const token =
+        localStorage.getItem("passengerToken");
+
+    if (!token) {
+
+        window.location.href =
+            "passenger-login.html";
+    }
+
+
+    // ==========================================
+    // LOAD PASSENGER INFORMATION
+    // ==========================================
+
+    const passengerName =
+        localStorage.getItem("passengerName");
+
+    const username =
+        localStorage.getItem("passengerUsername");
+
+    const phone =
+        localStorage.getItem("passengerPhone");
+
+
+    document.getElementById("passengerName")
+        .textContent = passengerName || "Passenger";
+
+    document.getElementById("headerName")
+        .textContent = passengerName || "Passenger";
+
+    document.getElementById("username")
+        .textContent = username || "-";
+
+    document.getElementById("phone")
+        .textContent = phone || "-";
+
+
+    // ==========================================
+    // LOAD MY COMPLAINTS
+    // ==========================================
+
+    async function loadComplaints() {
+
+        const container =
+            document.getElementById(
+                "complaintsContainer"
+            );
+
+        try {
+
+            const response = await fetch(
+                "http://127.0.0.1:8001/complaints/my",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+
+            // ------------------------------------------
+            // CHECK AUTHENTICATION
+            // ------------------------------------------
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                localStorage.clear();
+
+                window.location.href =
+                    "passenger-login.html";
+
+                return;
+            }
+
+
+            // ------------------------------------------
+            // CHECK OTHER ERRORS
+            // ------------------------------------------
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to load complaints"
+                );
+            }
+
+
+            // ------------------------------------------
+            // GET API RESPONSE
+            // ------------------------------------------
+
+            const data =
+                await response.json();
+
+
+            // ------------------------------------------
+            // GET COMPLAINT ARRAY
+            //
+            // Backend returns:
+            //
+            // {
+            //     "count": 2,
+            //     "complaints": [...]
+            // }
+            // ------------------------------------------
+
+            const complaints =
+                data.complaints || [];
+
+
+            // ------------------------------------------
+            // NO COMPLAINTS
+            // ------------------------------------------
+
+            if (complaints.length === 0) {
+
+                container.innerHTML = `
+                    <div class="empty">
+                        You have not registered any complaints yet.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            // ------------------------------------------
+            // DISPLAY COMPLAINTS
+            // ------------------------------------------
+
+            container.innerHTML = "";
+
+
+            complaints.forEach(function(complaint) {
+
+                let statusClass =
+                    "pending";
+
+
+                if (
+                    complaint.status ===
+                    "In Progress"
+                ) {
+
+                    statusClass =
+                        "in-progress";
+                }
+
+
+                if (
+                    complaint.status ===
+                    "Resolved"
+                ) {
+
+                    statusClass =
+                        "resolved";
+                }
+
+
+                const card =
+                    document.createElement("div");
+
+
+                card.className =
+                    "complaint-card";
+
+
+                card.innerHTML = `
+
+                    <div class="complaint-top">
+
+                        <div class="complaint-id">
+                            Complaint #${complaint.id}
+                        </div>
+
+                        <div class="status ${statusClass}">
+                            ${complaint.status || "Pending"}
+                        </div>
+
+                    </div>
+
+
+                    <div class="details">
+
+                        <div class="detail">
+                            <strong>Train:</strong>
+                            ${complaint.train_number || "-"}
+                        </div>
+
+                        <div class="detail">
+                            <strong>Coach:</strong>
+                            ${complaint.coach_number || "-"}
+                        </div>
+
+                        <div class="detail">
+                            <strong>Seat:</strong>
+                            ${complaint.seat_number || "-"}
+                        </div>
+
+                        <div class="detail">
+                            <strong>PNR:</strong>
+                            ${complaint.pnr_number || "-"}
+                        </div>
+
+                    </div>
+
+
+                    <div class="description">
+                        <strong>Complaint:</strong>
+                        ${complaint.description || "-"}
+                    </div>
+
+                `;
+
+
+                container.appendChild(card);
+
+            });
+
+        }
+        catch (error) {
+
+            console.error(error);
+
+            container.innerHTML = `
+                <div class="error">
+                    Unable to load complaints.
+                    Please make sure the backend is running.
+                </div>
+            `;
+        }
+
+    }
+
+
+    // ==========================================
+    // NEW COMPLAINT
+    // ==========================================
+
+    function newComplaint() {
+
+        window.location.href =
+            "passenger.html";
+
+    }
+
+
+    // ==========================================
+    // LOGOUT
+    // ==========================================
+
+    function logout() {
+
+        localStorage.removeItem(
+            "passengerToken"
+        );
+
+        localStorage.removeItem(
+            "passengerId"
+        );
+
+        localStorage.removeItem(
+            "passengerUsername"
+        );
+
+        localStorage.removeItem(
+            "passengerName"
+        );
+
+        localStorage.removeItem(
+            "passengerPhone"
+        );
+
+
+        window.location.href =
+            "passenger-login.html";
+    }
+
+
+    // ==========================================
+    // START
+    // ==========================================
+
+    loadComplaints();
+
+</script>
+
+</body>
+</html>

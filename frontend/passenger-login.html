@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RailMitra AI - Passenger Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #eef4ff, #ffffff);
+        }
+
+        .login-container {
+            width: 400px;
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1d4ed8;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #1d4ed8;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #555;
+        }
+
+        .register-link a {
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="logo">
+            🚆 RailMitra AI
+        </div>
+
+        <div class="subtitle">
+            Passenger Login
+        </div>
+
+        <form id="loginForm">
+
+            <label for="username">
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter your username"
+                required
+            >
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <div id="message"></div>
+
+        <div class="register-link">
+            Don't have an account?
+            <a href="passenger-register.html">
+                Create Account
+            </a>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const loginForm = document.getElementById("loginForm");
+        const message = document.getElementById("message");
+
+
+        loginForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const username =
+                document.getElementById("username").value.trim();
+
+            const password =
+                document.getElementById("password").value;
+
+
+            message.textContent = "Logging in...";
+            message.style.color = "#555";
+
+
+            const formData = new FormData();
+
+            formData.append("username", username);
+            formData.append("password", password);
+
+
+            try {
+
+                const response = await fetch(
+                    "http://127.0.0.1:8001/passenger/login",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok || !data.success) {
+
+                    message.textContent =
+                        data.detail ||
+                        data.message ||
+                        "Invalid username or password";
+
+                    message.style.color = "red";
+
+                    return;
+                }
+
+
+                // Save JWT token
+                localStorage.setItem(
+                    "passengerToken",
+                    data.access_token
+                );
+
+
+                // Save passenger information
+                localStorage.setItem(
+                    "passengerId",
+                    data.passenger_id
+                );
+
+                localStorage.setItem(
+                    "passengerUsername",
+                    data.username
+                );
+
+                localStorage.setItem(
+                    "passengerName",
+                    data.passenger_name
+                );
+
+                localStorage.setItem(
+                    "passengerPhone",
+                    data.phone_number
+                );
+
+
+                message.textContent =
+                    "Login successful! Redirecting...";
+
+                message.style.color = "green";
+
+
+                setTimeout(function() {
+
+                    window.location.href =
+                        "passenger-dashboard.html";
+
+                }, 800);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    "Cannot connect to RailMitra AI server.";
+
+                message.style.color = "red";
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>

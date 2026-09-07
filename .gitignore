@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Environment variables
+.env
+
+# Node
+node_modules/
+dist/
+
+# AI models
+models/*.pt
+models/*.onnx
+models/*.pth
+
+# Uploaded files
+uploads/
+*.mp4
+*.mp3
+*.wav
+*.jpg
+*.jpeg
+*.png
+
+# IDE
+.vscode/
+
+# Operating system
+.DS_Store
+Thumbs.db

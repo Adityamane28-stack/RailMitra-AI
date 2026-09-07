@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>RailMitra AI - Admin Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <!-- ========================================= -->
+    <!-- ADMIN LOGIN PROTECTION -->
+    <!-- ========================================= -->
+
+    <script>
+
+        const adminToken =
+            localStorage.getItem("adminToken");
+
+        const adminLoggedIn =
+            sessionStorage.getItem("adminLoggedIn");
+
+
+        /*
+         * Allow access if either:
+         * 1. Admin JWT exists, OR
+         * 2. Old admin login session exists.
+         */
+
+        if (
+            !adminToken &&
+            adminLoggedIn !== "true"
+        ) {
+
+            window.location.replace("login.html");
+
+        }
+
+    </script>
+
+</head>
+
+
+<body>
+
+<header class="header">
+
+    <div>
+
+        <h1>RailMitra AI</h1>
+
+        <p>
+            AI-Powered Railway Complaint Management
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <span class="status">
+            ● System Online
+        </span>
+
+
+        <!-- LOGOUT BUTTON -->
+
+        <button
+            type="button"
+            onclick="logout()"
+            class="logout-button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+    <!-- ========================================= -->
+    <!-- DASHBOARD CARDS -->
+    <!-- ========================================= -->
+
+    <section class="cards">
+
+
+        <div class="card">
+
+            <h3>Total Complaints</h3>
+
+            <p id="totalComplaints">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Pending</h3>
+
+            <p id="pendingComplaints">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>In Progress</h3>
+
+            <p id="inProgressComplaints">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Resolved</h3>
+
+            <p id="resolvedComplaints">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Critical</h3>
+
+            <p id="criticalComplaints">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>High Priority</h3>
+
+            <p id="highComplaints">
+                0
+            </p>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- DEPARTMENT SUMMARY -->
+    <!-- ========================================= -->
+
+    <section class="panel">
+
+        <h2>
+            Department-wise Complaints
+        </h2>
+
+
+        <div id="departments">
+
+            Loading...
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- COMPLAINT TABLE -->
+    <!-- ========================================= -->
+
+    <section class="panel">
+
+
+        <div class="panel-header">
+
+            <h2>
+                Complaints
+            </h2>
+
+
+            <button
+                type="button"
+                onclick="loadComplaints()"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+
+        <!-- ========================================= -->
+        <!-- SEARCH AND FILTERS -->
+        <!-- ========================================= -->
+
+        <div class="filters">
+
+
+            <!-- SEARCH -->
+
+            <input
+                type="text"
+                id="searchComplaint"
+                placeholder="Search passenger or train..."
+                oninput="applyFilters()"
+            >
+
+
+            <!-- STATUS -->
+
+            <select
+                id="statusFilter"
+                onchange="applyFilters()"
+            >
+
+                <option value="">
+                    All Status
+                </option>
+
+                <option value="Pending">
+                    Pending
+                </option>
+
+                <option value="In Progress">
+                    In Progress
+                </option>
+
+                <option value="Resolved">
+                    Resolved
+                </option>
+
+            </select>
+
+
+            <!-- PRIORITY -->
+
+            <select
+                id="priorityFilter"
+                onchange="applyFilters()"
+            >
+
+                <option value="">
+                    All Priority
+                </option>
+
+                <option value="Critical">
+                    Critical
+                </option>
+
+                <option value="High">
+                    High
+                </option>
+
+                <option value="Medium">
+                    Medium
+                </option>
+
+                <option value="Low">
+                    Low
+                </option>
+
+            </select>
+
+
+            <!-- CATEGORY -->
+
+            <select
+                id="categoryFilter"
+                onchange="applyFilters()"
+            >
+
+                <option value="">
+                    All Categories
+                </option>
+
+                <option value="Cleanliness">
+                    Cleanliness
+                </option>
+
+                <option value="Coach/Seat Issue">
+                    Coach/Seat Issue
+                </option>
+
+                <option value="Food">
+                    Food
+                </option>
+
+                <option value="Security">
+                    Security
+                </option>
+
+                <option value="Medical">
+                    Medical
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+
+            <!-- DEPARTMENT -->
+
+            <select
+                id="departmentFilter"
+                onchange="applyFilters()"
+            >
+
+                <option value="">
+                    All Departments
+                </option>
+
+                <option value="Housekeeping">
+                    Housekeeping
+                </option>
+
+                <option value="Coach Maintenance">
+                    Coach Maintenance
+                </option>
+
+                <option value="Security">
+                    Security
+                </option>
+
+                <option value="Medical">
+                    Medical
+                </option>
+
+                <option value="General Helpdesk">
+                    General Helpdesk
+                </option>
+
+                <option value="General Complaint">
+                    General Complaint
+                </option>
+
+            </select>
+
+
+            <!-- CLEAR -->
+
+            <button
+                type="button"
+                onclick="clearFilters()"
+            >
+                Clear Filters
+            </button>
+
+
+        </div>
+
+
+        <!-- ========================================= -->
+        <!-- COMPLAINT TABLE -->
+        <!-- ========================================= -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Passenger</th>
+
+                        <th>Train</th>
+
+                        <th>Category</th>
+
+                        <th>Priority</th>
+
+                        <th>Department</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="complaintTable">
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            Loading complaints...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- ========================================= -->
+<!-- COMPLAINT DETAILS MODAL -->
+<!-- ========================================= -->
+
+<div
+    id="complaintModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+
+        <span
+            class="close"
+            onclick="closeComplaintModal()"
+        >
+            &times;
+        </span>
+
+
+        <h2>
+            Complaint Details
+        </h2>
+
+
+        <div id="complaintDetails">
+
+            Loading...
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================================= -->
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RailMitra-AI | Railway Complaint Management</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            background: #123c69;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .nav-text {
+            font-size: 14px;
+        }
+
+        /* HERO */
+
+        .hero {
+            text-align: center;
+            padding: 70px 20px 45px;
+        }
+
+        .hero-icon {
+            font-size: 55px;
+            margin-bottom: 10px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            color: #123c69;
+            font-size: 42px;
+        }
+
+        .hero h1 span {
+            color: #e67e22;
+        }
+
+        .hero p {
+            margin-top: 18px;
+            color: #555;
+            font-size: 18px;
+        }
+
+        /* CARDS */
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 30px;
+            padding: 10px 20px 70px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            width: 360px;
+            background: white;
+            border-radius: 16px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        .card-icon {
+            font-size: 55px;
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            color: #123c69;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            min-height: 80px;
+        }
+
+        /* BUTTONS */
+
+        .button {
+            display: inline-block;
+            padding: 13px 20px;
+            margin: 7px 4px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .button-primary {
+            background: #123c69;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: #0d2d50;
+        }
+
+        .button-secondary {
+            background: #e9eef5;
+            color: #123c69;
+        }
+
+        .button-secondary:hover {
+            background: #dce5ef;
+        }
+
+        /* FEATURES */
+
+        .features {
+            background: white;
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        .features h2 {
+            color: #123c69;
+            margin-bottom: 30px;
+        }
+
+        .feature-list {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            width: 200px;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+        }
+
+        .feature h3 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            background: #123c69;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 380px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <div class="logo">
+            🚆 RailMitra-AI
+        </div>
+
+        <div class="nav-text">
+            Smart Railway Complaint Management
+        </div>
+
+    </header>
+
+    <!-- HERO SECTION -->
+
+    <section class="hero">
+
+        <div class="hero-icon">
+            🚆
+        </div>
+
+        <h1>
+            Welcome to <span>RailMitra-AI</span>
+        </h1>
+
+        <p>
+            AI-powered railway complaint management
+            for faster and smarter passenger service.
+        </p>
+
+    </section>
+
+    <!-- LOGIN OPTIONS -->
+
+    <section class="cards-container">
+
+        <!-- PASSENGER CARD -->
+
+        <div class="card">
+
+            <div class="card-icon">
+                👤
+            </div>
+
+            <h2>
+                Passenger
+            </h2>
+
+            <p>
+                File railway complaints, upload image,
+                video or audio evidence, and track
+                your complaint status.
+            </p>
+
+            <a
+                href="passenger-login.html"
+                class="button button-primary"
+            >
+                Passenger Login
+            </a>
+
+            <a
+                href="passenger-register.html"
+                class="button button-secondary"
+            >
+                Create Account
+            </a>
+
+        </div>
+
+        <!-- ADMIN CARD -->
+
+        <div class="card">
+
+            <div class="card-icon">
+                👨‍💼
+            </div>
+
+            <h2>
+                Railway Admin
+            </h2>
+
+            <p>
+                Manage passenger complaints, view AI
+                analysis, check priority and department,
+                and resolve complaints.
+            </p>
+
+            <a
+                href="login.html"
+                class="button button-primary"
+            >
+                Admin Login
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- FEATURES -->
+
+    <section class="features">
+
+        <h2>
+            RailMitra-AI Features
+        </h2>
+
+        <div class="feature-list">
+
+            <div class="feature">
+
+                <div class="feature-icon">
+                    🤖
+                </div>
+
+                <h3>
+                    AI Analysis
+                </h3>
+
+                <p>
+                    Automatically analyze complaint evidence.
+                </p>
+
+            </div>
+
+            <div class="feature">
+
+                <div class="feature-icon">
+                    📷
+                </div>
+
+                <h3>
+                    Evidence Upload
+                </h3>
+
+                <p>
+                    Upload image, video and audio evidence.
+                </p>
+
+            </div>
+
+            <div class="feature">
+
+                <div class="feature-icon">
+                    🚨
+                </div>
+
+                <h3>
+                    Priority Detection
+                </h3>
+
+                <p>
+                    Identify urgent railway complaints.
+                </p>
+
+            </div>
+
+            <div class="feature">
+
+                <div class="feature-icon">
+                    📊
+                </div>
+
+                <h3>
+                    Complaint Tracking
+                </h3>
+
+                <p>
+                    Track your complaint status easily.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        © 2026 RailMitra-AI |
+        AI-Powered Railway Complaint Management
+
+    </footer>
+
+</body>
+
+</html>
