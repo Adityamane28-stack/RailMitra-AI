@@ -3,10 +3,10 @@
 // =====================================================
 
 const API_URL = (
-    window.location.origin && (
-        window.location.origin.includes(":8000") ||
-        window.location.origin.includes(":8001")
-    )
+    window.location.origin &&
+    !window.location.origin.includes(":5500") &&
+    !window.location.origin.includes(":3000") &&
+    !window.location.origin.startsWith("file:")
 ) ? window.location.origin : "http://127.0.0.1:8000";
 
 let allComplaints = [];

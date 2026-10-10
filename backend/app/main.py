@@ -87,18 +87,6 @@ app.mount(
 )
 
 # =====================================================
-# FRONTEND STATIC MOUNT
-# =====================================================
-
-frontend_dir = project_root / "frontend"
-if frontend_dir.exists():
-    app.mount(
-        "/frontend",
-        StaticFiles(directory=str(frontend_dir)),
-        name="frontend"
-    )
-
-# =====================================================
 # ROUTERS
 # =====================================================
 
@@ -108,19 +96,8 @@ app.include_router(admin_router)
 app.include_router(passenger_router)
 
 # =====================================================
-# ROOT & WEB ENTRY
+# SYSTEM & HEALTH ENDPOINTS
 # =====================================================
-
-@app.get("/")
-def root():
-    index_path = project_root / "frontend" / "index.html"
-    if index_path.exists():
-        return FileResponse(str(index_path))
-    return {
-        "message": "RailMitra AI API is running",
-        "status": "success",
-        "docs": "/docs"
-    }
 
 @app.get("/health")
 def health():
@@ -144,6 +121,32 @@ def database_test():
             "database": "connection failed",
             "error": str(e)
         }
+
+# =====================================================
+# FRONTEND STATIC MOUNT & ROOT SERVING
+# =====================================================
+
+frontend_dir = project_root / "frontend"
+if frontend_dir.exists():
+    app.mount(
+        "/frontend",
+        StaticFiles(directory=str(frontend_dir), html=True),
+        name="frontend"
+    )
+    app.mount(
+        "/",
+        StaticFiles(directory=str(frontend_dir), html=True),
+        name="static_root"
+    )
+else:
+    @app.get("/")
+    def root():
+        return {
+            "message": "RailMitra AI API is running",
+            "status": "success",
+            "docs": "/docs"
+        }
+
 
 # =====================================================
 # RUN SERVER
