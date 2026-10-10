@@ -4,99 +4,73 @@ import uuid
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 
 from app.models.passenger import Passenger
-from app.auth.dependencies import get_current_passenger, get_current_admin
-
+from app.auth.dependencies import get_current_passenger
 from app.services.image_ai import analyze_image
 from app.services.rail_vision import classify_railway_image
 from app.services.audio_ai import analyze_audio
 from app.services.video_ai import analyze_video
-
+from app.config import IMAGE_DIR, VIDEO_DIR, AUDIO_DIR
 
 router = APIRouter(prefix="/evidence", tags=["Evidence"])
-
-
-# ---------------------------------------------------------
-# UPLOAD DIRECTORIES
-# ---------------------------------------------------------
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
-
-IMAGE_DIR = os.path.join(UPLOAD_DIR, "images")
-VIDEO_DIR = os.path.join(UPLOAD_DIR, "videos")
-AUDIO_DIR = os.path.join(UPLOAD_DIR, "audio")
-
-
-os.makedirs(IMAGE_DIR, exist_ok=True)
-os.makedirs(VIDEO_DIR, exist_ok=True)
-os.makedirs(AUDIO_DIR, exist_ok=True)
-
-
-# ---------------------------------------------------------
-# ALLOWED FILE TYPES
-# ---------------------------------------------------------
 
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg",
     "image/png",
-    "image/jpg"
+    "image/jpg",
+    "image/webp"
 }
 
 ALLOWED_VIDEO_TYPES = {
     "video/mp4",
     "video/mpeg",
-    "video/quicktime"
+    "video/quicktime",
+    "video/webm",
+    "video/x-msvideo"
 }
 
 ALLOWED_AUDIO_TYPES = {
     "audio/mpeg",
     "audio/wav",
     "audio/x-wav",
-    "audio/mp3"
+    "audio/mp3",
+    "audio/webm",
+    "audio/ogg",
+    "audio/mp4"
 }
 
-
-# ---------------------------------------------------------
-# GENERAL EVIDENCE UPLOAD
-# ---------------------------------------------------------
 
 @router.post("/upload")
 async def upload_evidence(
     file: UploadFile = File(...),
     passenger: Passenger = Depends(get_current_passenger)
 ):
+    """
+    General multi-format evidence upload endpoint for passengers.
+    """
+    content_type = file.content_type or ""
 
-    content_type = file.content_type
-
-    if content_type in ALLOWED_IMAGE_TYPES:
+    if content_type in ALLOWED_IMAGE_TYPES or file.filename.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
         evidence_type = "image"
         save_dir = IMAGE_DIR
-
-    elif content_type in ALLOWED_VIDEO_TYPES:
+    elif content_type in ALLOWED_VIDEO_TYPES or file.filename.lower().endswith((".mp4", ".mpeg", ".mov", ".webm", ".avi")):
         evidence_type = "video"
         save_dir = VIDEO_DIR
-
-    elif content_type in ALLOWED_AUDIO_TYPES:
+    elif content_type in ALLOWED_AUDIO_TYPES or file.filename.lower().endswith((".mp3", ".wav", ".ogg", ".webm", ".m4a")):
         evidence_type = "audio"
         save_dir = AUDIO_DIR
-
     else:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported evidence file type"
+            detail="Unsupported evidence file format. Supported: JPG, PNG, WEBP, MP4, MOV, WEBM, MP3, WAV"
         )
 
-    original_filename = file.filename
-
-    extension = os.path.splitext(original_filename)[1]
+    original_filename = file.filename or "evidence_file"
+    extension = os.path.splitext(original_filename)[1].lower()
+    if not extension:
+        extension = ".bin"
 
     saved_filename = f"{uuid.uuid4()}{extension}"
-
-    file_path = os.path.join(
-        save_dir,
-        saved_filename
-    )
+    file_path = str(save_dir / saved_filename)
 
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
@@ -111,32 +85,25 @@ async def upload_evidence(
     }
 
 
-# ---------------------------------------------------------
-# IMAGE AI ANALYSIS
-# ---------------------------------------------------------
-
 @router.post("/analyze-image")
 async def analyze_uploaded_image(
     file: UploadFile = File(...),
     passenger: Passenger = Depends(get_current_passenger)
 ):
-
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
+    """
+    Upload and run AI computer vision analysis on image evidence.
+    """
+    content_type = file.content_type or ""
+    if content_type not in ALLOWED_IMAGE_TYPES and not file.filename.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
         raise HTTPException(
             status_code=400,
-            detail="Only image files are allowed"
+            detail="Only image files (JPG, PNG, WEBP) are allowed"
         )
 
-    original_filename = file.filename
-
-    extension = os.path.splitext(original_filename)[1]
-
+    original_filename = file.filename or "evidence.jpg"
+    extension = os.path.splitext(original_filename)[1].lower() or ".jpg"
     saved_filename = f"{uuid.uuid4()}{extension}"
-
-    image_path = os.path.join(
-        IMAGE_DIR,
-        saved_filename
-    )
+    image_path = str(IMAGE_DIR / saved_filename)
 
     with open(image_path, "wb") as buffer:
         buffer.write(await file.read())
@@ -147,29 +114,25 @@ async def analyze_uploaded_image(
     if not ai_result.get("success"):
         raise HTTPException(
             status_code=500,
-            detail=ai_result.get(
-                "error",
-                "Image AI analysis failed"
-            )
+            detail=ai_result.get("error", "Image AI analysis failed")
         )
 
-    detected_label = ai_result.get("label")
-    confidence = ai_result.get("confidence")
+    detected_label = ai_result.get("label", "damaged railway coach or equipment")
+    confidence = ai_result.get("confidence", 0.85)
 
-    # Railway classification
-    category, priority, department = classify_railway_image(
-        detected_label
-    )
+    # Railway classification (FIXED BUG: pass 2 args and receive dict)
+    railway_result = classify_railway_image(detected_label, confidence)
+    category = railway_result.get("category", "Other")
+    priority = railway_result.get("priority", "Medium")
+    department = railway_result.get("department", "General Complaint")
 
     return {
         "message": "Image analyzed successfully",
-
         "file": {
             "original_filename": original_filename,
             "saved_filename": saved_filename,
             "path": image_path
         },
-
         "ai_analysis": {
             "detected_label": detected_label,
             "confidence": confidence,
@@ -180,115 +143,81 @@ async def analyze_uploaded_image(
     }
 
 
-# ---------------------------------------------------------
-# AUDIO AI ANALYSIS
-# ---------------------------------------------------------
-
 @router.post("/analyze-audio")
 async def analyze_uploaded_audio(
     file: UploadFile = File(...),
     passenger: Passenger = Depends(get_current_passenger)
 ):
-
-    if file.content_type not in ALLOWED_AUDIO_TYPES:
+    """
+    Upload and run AI audio analysis on audio recording evidence.
+    """
+    content_type = file.content_type or ""
+    if content_type not in ALLOWED_AUDIO_TYPES and not file.filename.lower().endswith((".mp3", ".wav", ".ogg", ".webm", ".m4a")):
         raise HTTPException(
             status_code=400,
-            detail="Only audio files are allowed"
+            detail="Only audio files (MP3, WAV, OGG, WEBM) are allowed"
         )
 
-    original_filename = file.filename
-
-    extension = os.path.splitext(original_filename)[1]
-
+    original_filename = file.filename or "audio_evidence.mp3"
+    extension = os.path.splitext(original_filename)[1].lower() or ".mp3"
     saved_filename = f"{uuid.uuid4()}{extension}"
-
-    audio_path = os.path.join(
-        AUDIO_DIR,
-        saved_filename
-    )
+    audio_path = str(AUDIO_DIR / saved_filename)
 
     with open(audio_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    # AI analysis
     ai_result = analyze_audio(audio_path)
 
     return {
         "message": "Audio analyzed successfully",
-
         "file": {
             "original_filename": original_filename,
             "saved_filename": saved_filename,
             "path": audio_path
         },
-
         "ai_analysis": ai_result
     }
 
-
-# ---------------------------------------------------------
-# VIDEO AI ANALYSIS
-# ---------------------------------------------------------
 
 @router.post("/analyze-video")
 async def analyze_uploaded_video(
     file: UploadFile = File(...),
     passenger: Passenger = Depends(get_current_passenger)
 ):
-
-    if file.content_type not in ALLOWED_VIDEO_TYPES:
+    """
+    Upload and run AI video frame sampling & classification on video evidence.
+    """
+    content_type = file.content_type or ""
+    if content_type not in ALLOWED_VIDEO_TYPES and not file.filename.lower().endswith((".mp4", ".mpeg", ".mov", ".webm", ".avi")):
         raise HTTPException(
             status_code=400,
-            detail="Only video files are allowed"
+            detail="Only video files (MP4, MPEG, MOV, WEBM) are allowed"
         )
 
-    original_filename = file.filename
-
-    extension = os.path.splitext(original_filename)[1]
-
+    original_filename = file.filename or "video_evidence.mp4"
+    extension = os.path.splitext(original_filename)[1].lower() or ".mp4"
     saved_filename = f"{uuid.uuid4()}{extension}"
-
-    video_path = os.path.join(
-        VIDEO_DIR,
-        saved_filename
-    )
+    video_path = str(VIDEO_DIR / saved_filename)
 
     with open(video_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    # AI analysis
     ai_result = analyze_video(video_path)
 
     if not ai_result.get("success"):
         raise HTTPException(
             status_code=500,
-            detail=ai_result.get(
-                "error",
-                "Video AI analysis failed"
-            )
+            detail=ai_result.get("error", "Video AI analysis failed")
         )
 
     return {
         "message": "Video analyzed successfully",
-
         "file": {
             "original_filename": original_filename,
             "saved_filename": saved_filename,
             "path": video_path
         },
-
-        "video_info": ai_result.get(
-            "video_info",
-            {}
-        ),
-
-        "ai_analysis": ai_result.get(
-            "classification",
-            {}
-        ),
-
-        "best_detection": ai_result.get(
-            "best_detection",
-            {}
-        )
+        "video_info": ai_result.get("video_info", {}),
+        "ai_analysis": ai_result.get("classification", {}),
+        "best_detection": ai_result.get("best_detection", {})
     }

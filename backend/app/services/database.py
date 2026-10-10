@@ -1,19 +1,20 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg://postgres:adi281#2@127.0.0.1:5432/railmitra")
 
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set in the .env file")
-
-engine = create_engine(
-    DATABASE_URL,
-    echo=False
-)
+try:
+    engine = create_engine(DATABASE_URL, echo=False)
+    # Test connection
+    with engine.connect():
+        pass
+except Exception as err:
+    print(f"[Database Warning] PostgreSQL connection failed: {err}. Falling back to SQLite.")
+    engine = create_engine("sqlite:///./railmitra.db", echo=False, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -26,7 +27,6 @@ Base = declarative_base()
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
     finally:

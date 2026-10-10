@@ -1,32 +1,57 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-venv/
+*.py[cod]
+*$py.class
+*.so
 
-# Environment variables
-.env
+# C extensions
+*.obj
+*.o
+*.lib
 
-# Node
-node_modules/
+# Distribution / packaging
 dist/
+build/
+*.egg-info/
 
-# AI models
-models/*.pt
-models/*.onnx
-models/*.pth
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
 
-# Uploaded files
+# Environment variables & secrets
+.env
+*.env
+backend/.env
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+railmitra.db
+backend/railmitra.db
+
+# Uploaded media files
 uploads/
-*.mp4
-*.mp3
-*.wav
-*.jpg
-*.jpeg
-*.png
+backend/uploads/images/*
+!backend/uploads/images/.gitkeep
+backend/uploads/videos/*
+!backend/uploads/videos/.gitkeep
+backend/uploads/audio/*
+!backend/uploads/audio/.gitkeep
 
-# IDE
+# IDEs & Editors
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# Operating system
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Logs & temp
+*.log
+.pytest_cache/

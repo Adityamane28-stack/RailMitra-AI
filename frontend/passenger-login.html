@@ -1,270 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>RailMitra AI - Passenger Login</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #eef4ff, #ffffff);
-        }
-
-        .login-container {
-            width: 400px;
-            background: white;
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        .logo {
-            text-align: center;
-            font-size: 30px;
-            font-weight: bold;
-            color: #1d4ed8;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 18px;
-            font-size: 15px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #1d4ed8;
-        }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 8px;
-            background: #1d4ed8;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #1e40af;
-        }
-
-        #message {
-            margin-top: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #555;
-        }
-
-        .register-link a {
-            color: #1d4ed8;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
+    <title>RailMitra AI | Passenger Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="auth-page">
 
-    <div class="login-container">
+    <div class="auth-card">
+        <div class="auth-icon">🚆</div>
+        <h1>RailMitra-AI</h1>
+        <p class="auth-subtitle">Passenger Grievance Portal</p>
 
-        <div class="logo">
-            🚆 RailMitra AI
-        </div>
+        <form id="passengerLoginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter your registered username"
+                    required
+                >
+            </div>
 
-        <div class="subtitle">
-            Passenger Login
-        </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your account password"
+                    required
+                >
+            </div>
 
-        <form id="loginForm">
-
-            <label for="username">
-                Username
-            </label>
-
-            <input
-                type="text"
-                id="username"
-                placeholder="Enter your username"
-                required
+            <button
+                type="submit"
+                class="button button-primary"
+                id="loginBtn"
+                style="width:100%; padding:13px; font-size:15px; margin-top:6px;"
             >
-
-            <label for="password">
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-            >
-
-            <button type="submit">
-                Login
+                Login to Passenger Portal
             </button>
-
         </form>
 
-        <div id="message"></div>
+        <div id="loginMsg" style="margin-top:14px; font-size:13px; min-height:18px;"></div>
 
-        <div class="register-link">
+        <div style="margin-top:20px; font-size:14px; color:#64748b;">
             Don't have an account?
-            <a href="passenger-register.html">
+            <a href="passenger-register.html" style="color:#2563eb; font-weight:700; text-decoration:none;">
                 Create Account
             </a>
         </div>
 
+        <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; font-size:13px;">
+            <a href="index.html" style="color:#2563eb; text-decoration:none;">← Home Page</a>
+            <a href="login.html" style="color:#2563eb; text-decoration:none;">Admin Login →</a>
+        </div>
     </div>
 
-
     <script>
+        const API_BASE = (
+            window.location.origin && (
+                window.location.origin.includes(":8000") ||
+                window.location.origin.includes(":8001")
+            )
+        ) ? window.location.origin : "http://127.0.0.1:8000";
 
-        const loginForm = document.getElementById("loginForm");
-        const message = document.getElementById("message");
+        document.getElementById("passengerLoginForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
 
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+            const msg = document.getElementById("loginMsg");
+            const btn = document.getElementById("loginBtn");
 
-        loginForm.addEventListener("submit", async function(event) {
-
-            event.preventDefault();
-
-            const username =
-                document.getElementById("username").value.trim();
-
-            const password =
-                document.getElementById("password").value;
-
-
-            message.textContent = "Logging in...";
-            message.style.color = "#555";
-
+            msg.textContent = "Authenticating passenger...";
+            msg.style.color = "#475569";
+            btn.disabled = true;
 
             const formData = new FormData();
-
             formData.append("username", username);
             formData.append("password", password);
 
-
             try {
-
-                const response = await fetch(
-                    "http://127.0.0.1:8000/passenger/login",
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
-
+                const response = await fetch(`${API_BASE}/passenger/login`, {
+                    method: "POST",
+                    body: formData
+                });
 
                 const data = await response.json();
 
-
                 if (!response.ok || !data.success) {
-
-                    message.textContent =
-                        data.detail ||
-                        data.message ||
-                        "Invalid username or password";
-
-                    message.style.color = "red";
-
+                    msg.textContent = data.detail || data.message || "Invalid username or password";
+                    msg.style.color = "#dc2626";
+                    btn.disabled = false;
                     return;
                 }
 
+                localStorage.setItem("passengerToken", data.access_token);
+                localStorage.setItem("passengerId", data.passenger_id);
+                localStorage.setItem("passengerUsername", data.username);
+                localStorage.setItem("passengerName", data.passenger_name);
+                localStorage.setItem("passengerPhone", data.phone_number);
 
-                // Save JWT token
-                localStorage.setItem(
-                    "passengerToken",
-                    data.access_token
-                );
+                msg.textContent = "Login successful! Launching dashboard...";
+                msg.style.color = "#10b981";
 
+                setTimeout(() => {
+                    window.location.href = "passenger-dashboard.html";
+                }, 600);
 
-                // Save passenger information
-                localStorage.setItem(
-                    "passengerId",
-                    data.passenger_id
-                );
-
-                localStorage.setItem(
-                    "passengerUsername",
-                    data.username
-                );
-
-                localStorage.setItem(
-                    "passengerName",
-                    data.passenger_name
-                );
-
-                localStorage.setItem(
-                    "passengerPhone",
-                    data.phone_number
-                );
-
-
-                message.textContent =
-                    "Login successful! Redirecting...";
-
-                message.style.color = "green";
-
-
-                setTimeout(function() {
-
-                    window.location.href =
-                        "passenger-dashboard.html";
-
-                }, 800);
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                message.textContent =
-                    "Cannot connect to RailMitra AI server.";
-
-                message.style.color = "red";
+            } catch (err) {
+                msg.textContent = "Cannot connect to RailMitra AI server. Ensure backend is running.";
+                msg.style.color = "#dc2626";
+                btn.disabled = false;
             }
-
         });
-
     </script>
-
 </body>
+
 </html>

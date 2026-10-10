@@ -1,1141 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>RailMitra AI - Passenger Complaint</title>
+    <title>RailMitra AI | Register Passenger Complaint</title>
+    <link rel="stylesheet" href="style.css">
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f6f8;
-            padding: 30px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 25px;
-        }
-
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 9px 15px;
-            background: #eeeeee;
-            color: #333;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .back-btn:hover {
-            background: #dddddd;
-        }
-
-        .logged-user {
-            background: #eef4ff;
-            border: 1px solid #c7d8ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-
-        .logged-user p {
-            margin: 5px 0;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-        }
-
-        input:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #1565c0;
-        }
-
-        input[readonly] {
-            background: #f1f3f5;
-            cursor: not-allowed;
-        }
-
-        textarea {
-            height: 120px;
-            resize: vertical;
-        }
-
-        .row {
+        .category-pill-container {
             display: flex;
-            gap: 15px;
-        }
-
-        .row .form-group {
-            flex: 1;
-        }
-
-        .evidence-box {
-            margin-top: 25px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fafafa;
-        }
-
-        .evidence-box h3 {
-            margin-bottom: 10px;
-        }
-
-        .evidence-note {
-            color: #555;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-
-        .file-help {
+            gap: 8px;
+            flex-wrap: wrap;
             margin-top: 8px;
-            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .category-pill {
+            padding: 6px 13px;
+            border-radius: var(--radius-full);
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
             font-size: 13px;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 6px;
-            background: #1565c0;
-            color: white;
-            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
+            transition: var(--transition);
         }
 
-        .submit-btn:hover {
-            background: #0d47a1;
+        .category-pill:hover {
+            background: #e2e8f0;
         }
 
-        .submit-btn:disabled {
-            background: #90a4ae;
-            cursor: not-allowed;
-        }
-
-        .result {
-            display: none;
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #e8f5e9;
-            border: 1px solid #81c784;
-        }
-
-        .result p {
-            margin-bottom: 10px;
-        }
-
-        .error {
-            display: none;
-            margin-top: 25px;
-            padding: 15px;
-            border-radius: 8px;
-            background: #ffebee;
-            border: 1px solid #e57373;
-            color: #b71c1c;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-            color: #1565c0;
-            font-weight: bold;
-        }
-
-        .dashboard-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 11px 18px;
-            background: #1565c0;
+        .category-pill.selected {
+            background: #1e3a8a;
             color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-color: #1e3a8a;
         }
 
-        .dashboard-btn:hover {
-            background: #0d47a1;
+        .evidence-dropzone {
+            border: 2px dashed #94a3b8;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        @media (max-width: 600px) {
+        .evidence-dropzone:hover {
+            border-color: #2563eb;
+            background: #f1f5f9;
+        }
 
-            .row {
-                flex-direction: column;
-                gap: 0;
-            }
+        .progress-stepper {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-md);
+            text-align: center;
+            animation: slideInUp 0.3s ease-out;
+        }
 
-            body {
-                padding: 15px;
-            }
-
-            .container {
-                padding: 20px;
-            }
+        .progress-step-item {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
     </style>
 </head>
 
 <body>
 
-<div class="container">
+    <header class="header">
+        <div style="display:flex; align-items:center; gap:14px;">
+            <a href="passenger-dashboard.html" class="logo">
+                🚆 RailMitra <span class="logo-badge">Passenger</span>
+            </a>
+        </div>
 
-    <a href="passenger-dashboard.html" class="back-btn">
-        ← Back to Dashboard
-    </a>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a href="passenger-dashboard.html" class="button-secondary" style="background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.2);">
+                ← My Dashboard
+            </a>
+        </div>
+    </header>
 
-    <h1>🚆 RailMitra AI</h1>
+    <div class="container" style="max-width:850px;">
 
-    <p class="subtitle">
-        Register a New Complaint
-    </p>
+        <div class="panel" style="padding:32px;">
+            <div style="text-align:center; margin-bottom:24px;">
+                <h1 style="color:#0f172a; font-size:28px; margin-bottom:6px;">
+                    📝 Register Railway Grievance
+                </h1>
+                <p style="color:#64748b; font-size:15px;">
+                    Upload photos, video, audio or describe your issue. Our AI will automatically classify and dispatch it to the right department.
+                </p>
+            </div>
 
-    <!-- Logged-in Passenger -->
+            <!-- Logged Passenger Banner -->
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-md); padding:14px 18px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <span style="font-size:13px; color:#1e40af; font-weight:700;">PASSENGER PROFILE</span>
+                    <div style="font-weight:600; color:#0f172a;" id="profileDisplay">Loading passenger...</div>
+                </div>
+                <div style="font-size:13px; color:#64748b;" id="phoneDisplay">-</div>
+            </div>
 
-    <div class="logged-user">
+            <form id="complaintForm">
 
-        <p>
-            <strong>Passenger:</strong>
-            <span id="loggedPassengerName">Loading...</span>
-        </p>
+                <!-- JOURNEY DETAILS -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:18px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="pnr_number">PNR Number (Optional)</label>
+                        <input type="text" id="pnr_number" placeholder="10-digit PNR" maxlength="10">
+                    </div>
 
-        <p>
-            <strong>Phone:</strong>
-            <span id="loggedPassengerPhone">Loading...</span>
-        </p>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="train_number">Train Number / Name</label>
+                        <input type="text" id="train_number" placeholder="e.g. 12951 / Rajdhani">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="coach_number">Coach Number</label>
+                        <input type="text" id="coach_number" placeholder="e.g. B4, S2, A1">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="seat_number">Seat / Berth Number</label>
+                        <input type="text" id="seat_number" placeholder="e.g. 35, 42">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location / Station</label>
+                    <input type="text" id="location" placeholder="e.g. Approaching Kanpur / New Delhi Railway Station">
+                </div>
+
+                <!-- CATEGORY SELECTION CHIPS -->
+                <div class="form-group">
+                    <label>Quick Issue Tag (or let AI auto-detect from description & photo)</label>
+                    <div class="category-pill-container" id="categoryChips">
+                        <button type="button" class="category-pill" onclick="selectCategory('Cleanliness', this)">🧹 Cleanliness / Toilet</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Electrical Issue', this)">⚡ Fan / AC / Lights</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Water Supply', this)">💧 Water Leak / No Water</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Food/Catering', this)">🍱 Food / Catering</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Security', this)">🛡️ Security / Harassment</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Medical Emergency', this)">🚑 Medical Emergency</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Coach/Seat Issue', this)">💺 Broken Seat / Window</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Fire/Emergency', this)">🔥 Fire / Smoke</button>
+                        <button type="button" class="category-pill" onclick="selectCategory('Other', this)">📦 Other Grievance</button>
+                    </div>
+                    <input type="hidden" id="selectedCategory" value="">
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="form-group">
+                    <label for="description">Grievance Description</label>
+                    <textarea id="description" rows="4" placeholder="Describe the issue in detail. For emergencies, please mention coach & seat number clearly..."></textarea>
+                </div>
+
+                <!-- MULTI-MODAL EVIDENCE UPLOAD & LIVE RECORDER -->
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                        <label style="margin-bottom:0;">📎 Evidence Attachment (Photo, Video, or Audio)</label>
+
+                        <!-- VOICE RECORDER BUTTON -->
+                        <button type="button" class="voice-record-btn" id="voiceRecordBtn" onclick="toggleVoiceRecording()">
+                            🎙️ Record Voice Note
+                        </button>
+                    </div>
+
+                    <div class="evidence-dropzone" onclick="document.getElementById('evidenceInput').click()">
+                        <div style="font-size:36px; margin-bottom:8px;">📷 🎥 🎙️</div>
+                        <div style="font-weight:700; color:#1e3a8a; font-size:15px;">Click to Upload Evidence</div>
+                        <div style="font-size:12px; color:#64748b; margin-top:4px;">
+                            Supports JPG, PNG, MP4, MOV, MP3, WAV (Max 25MB)
+                        </div>
+                    </div>
+                    <input type="file" id="evidenceInput" style="display:none;" accept="image/*,video/*,audio/*" onchange="handleFileSelected(this.files[0])">
+
+                    <!-- LIVE MEDIA PREVIEW -->
+                    <div class="media-preview-container" id="mediaPreview">
+                        <div id="mediaThumbnailContainer"></div>
+                        <div class="media-info">
+                            <strong id="mediaName" style="font-size:13px; display:block;">File Name</strong>
+                            <span id="mediaSize" style="font-size:12px; color:#64748b;">File Size</span>
+                        </div>
+                        <button type="button" class="btn-danger" style="padding:5px 10px; font-size:12px;" onclick="removeSelectedFile()">
+                            ✕ Remove
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" class="button-primary" id="submitBtn" style="width:100%; padding:14px; font-size:16px; margin-top:10px;">
+                    🚀 Submit & Run AI Triage
+                </button>
+
+                <!-- ANIMATED PROGRESS STEPPER -->
+                <div class="progress-stepper" id="progressStepper">
+                    <div class="progress-step-item">
+                        <div style="animation: spin 1s linear infinite; font-size:18px;">⚙️</div>
+                        <span id="progressStepText">Step 1: Uploading media to RailMitra AI...</span>
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- SUCCESS RESULT BANNER -->
+            <div id="resultBox" style="display:none; margin-top:24px; padding:24px; background:#f0fdf4; border:1px solid #86efac; border-radius:var(--radius-md); animation:slideInUp 0.3s ease-out;">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-size:22px;">✓</div>
+                    <div>
+                        <h3 style="color:#065f46; font-size:18px;">Grievance Successfully Registered!</h3>
+                        <p style="color:#166534; font-size:13px;">Forwarded to designated railway maintenance authority.</p>
+                    </div>
+                </div>
+
+                <div style="background:white; padding:16px; border-radius:var(--radius-sm); border:1px solid #bbf7d0; display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:18px;">
+                    <div><strong>Complaint ID:</strong> <span id="resId" style="color:#1e3a8a; font-weight:800;">-</span></div>
+                    <div><strong>AI Category:</strong> <span id="resCat">-</span></div>
+                    <div><strong>Priority Level:</strong> <span id="resPrio" class="priority-badge prio-medium">-</span></div>
+                    <div><strong>Routed To:</strong> <span id="resDept">-</span></div>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" class="button-secondary" onclick="resetFormForNew()">+ File Another</button>
+                    <a href="passenger-dashboard.html" class="button-primary">View in Dashboard →</a>
+                </div>
+            </div>
+
+            <!-- ERROR BANNER -->
+            <div id="errorBox" style="display:none; margin-top:20px; padding:16px; background:#fef2f2; border:1px solid #fca5a5; border-radius:var(--radius-md); color:#b91c1c;"></div>
+
+        </div>
 
     </div>
 
-    <form id="complaintForm">
-
-        <!-- Passenger Identity -->
-
-        <div class="row">
-
-            <div class="form-group">
-
-                <label>
-                    Passenger Name
-                </label>
-
-                <input
-                    type="text"
-                    id="passenger_name"
-                    readonly
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label>
-                    Phone Number
-                </label>
-
-                <input
-                    type="tel"
-                    id="phone_number"
-                    readonly
-                >
-
-            </div>
-
-        </div>
-
-        <!-- Journey Information -->
-
-        <div class="row">
-
-            <div class="form-group">
-
-                <label>
-                    PNR Number
-                </label>
-
-                <input
-                    type="text"
-                    id="pnr_number"
-                    placeholder="Enter PNR number"
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label>
-                    Train Number
-                </label>
-
-                <input
-                    type="text"
-                    id="train_number"
-                    placeholder="Enter train number"
-                >
-
-            </div>
-
-        </div>
-
-        <div class="row">
-
-            <div class="form-group">
-
-                <label>
-                    Coach Number
-                </label>
-
-                <input
-                    type="text"
-                    id="coach_number"
-                    placeholder="Example: S2"
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label>
-                    Seat Number
-                </label>
-
-                <input
-                    type="text"
-                    id="seat_number"
-                    placeholder="Example: 22"
-                >
-
-            </div>
-
-        </div>
-
-        <!-- Location -->
-
-        <div class="form-group">
-
-            <label>
-                Location
-            </label>
-
-            <input
-                type="text"
-                id="location"
-                placeholder="Station / Train location"
-            >
-
-        </div>
-
-        <!-- Complaint -->
-
-        <div class="form-group">
-
-            <label>
-                Complaint Description
-            </label>
-
-            <textarea
-                id="description"
-                placeholder="Describe your complaint..."
-            ></textarea>
-
-        </div>
-
-        <!-- Evidence -->
-
-        <div class="evidence-box">
-
-            <h3>
-                📎 Complaint Evidence
-            </h3>
-
-            <p class="evidence-note">
-                Upload a photo, video, or audio recording
-                showing the problem.
-            </p>
-
-            <label>
-                Upload Evidence
-            </label>
-
-            <input
-                type="file"
-                id="evidence"
-                accept="
-                    image/jpeg,
-                    image/jpg,
-                    image/png,
-                    video/mp4,
-                    video/mpeg,
-                    video/quicktime,
-                    audio/mpeg,
-                    audio/wav,
-                    audio/x-wav,
-                    audio/mp3
-                "
-            >
-
-            <p class="file-help">
-                Supported: JPG, PNG, MP4, MPEG, MOV, MP3 and WAV
-            </p>
-
-        </div>
-
-        <br>
-
-        <button
-            type="submit"
-            class="submit-btn"
-            id="submitBtn"
-        >
-            Submit Complaint
-        </button>
-
-        <div
-            class="loading"
-            id="loading"
-        >
-            🤖 Processing your complaint... Please wait.
-        </div>
-
-    </form>
-
-    <!-- Success -->
-
-    <div
-        class="result"
-        id="result"
-    >
-
-        <h3>
-            ✅ Complaint Registered Successfully
-        </h3>
-
-        <br>
-
-        <p>
-            <strong>Complaint ID:</strong>
-            <span id="complaintId"></span>
-        </p>
-
-        <p>
-            <strong>Category:</strong>
-            <span id="category"></span>
-        </p>
-
-        <p>
-            <strong>Status:</strong>
-            <span id="status"></span>
-        </p>
-
-        <a
-            href="passenger-dashboard.html"
-            class="dashboard-btn"
-        >
-            View My Complaints
-        </a>
-
-    </div>
-
-    <!-- Error -->
-
-    <div
-        class="error"
-        id="error"
-    ></div>
-
-</div>
-
-<script>
-
-const API_URL =
-    "http://127.0.0.1:8000";
-
-
-// =====================================================
-// CHECK LOGIN
-// =====================================================
-
-const passengerToken =
-    localStorage.getItem("passengerToken");
-
-const passengerName =
-    localStorage.getItem("passengerName");
-
-const passengerPhone =
-    localStorage.getItem("passengerPhone");
-
-// Check whether an MP4 actually contains a video track.
-// Audio-only MP4 files may be reported by the browser as video/mp4.
-function hasVideoTrack(file) {
-    return new Promise((resolve) => {
-        if (!file || !file.type.startsWith("video/")) {
-            resolve(false);
-            return;
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <script>
+        const API_BASE = (
+            window.location.origin && (
+                window.location.origin.includes(":8000") ||
+                window.location.origin.includes(":8001")
+            )
+        ) ? window.location.origin : "http://127.0.0.1:8000";
+
+        const passengerToken = localStorage.getItem("passengerToken");
+        const passengerName = localStorage.getItem("passengerName");
+        const passengerPhone = localStorage.getItem("passengerPhone");
+
+        if (!passengerToken) {
+            alert("Please login as a passenger first.");
+            window.location.href = "passenger-login.html";
         }
 
-        const video = document.createElement("video");
-        const objectUrl = URL.createObjectURL(file);
+        document.getElementById("profileDisplay").textContent = passengerName || "Verified Passenger";
+        document.getElementById("phoneDisplay").textContent = `📱 ${passengerPhone || "Phone N/A"}`;
 
-        video.preload = "metadata";
-        video.src = objectUrl;
+        let currentSelectedFile = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
 
-        video.onloadedmetadata = function () {
-            const hasVideo = video.videoWidth > 0 && video.videoHeight > 0;
-            URL.revokeObjectURL(objectUrl);
-            video.remove();
-            resolve(hasVideo);
-        };
+        function selectCategory(cat, btn) {
+            document.querySelectorAll(".category-pill").forEach(p => p.classList.remove("selected"));
+            const input = document.getElementById("selectedCategory");
+            if (input.value === cat) {
+                input.value = "";
+            } else {
+                input.value = cat;
+                btn.classList.add("selected");
+            }
+        }
 
-        video.onerror = function () {
-            URL.revokeObjectURL(objectUrl);
-            video.remove();
-            resolve(false);
-        };
-    });
-}
+        function handleFileSelected(file) {
+            if (!file) return;
+            currentSelectedFile = file;
 
+            const preview = document.getElementById("mediaPreview");
+            const thumbContainer = document.getElementById("mediaThumbnailContainer");
+            const nameEl = document.getElementById("mediaName");
+            const sizeEl = document.getElementById("mediaSize");
 
-if (!passengerToken) {
+            nameEl.textContent = file.name;
+            sizeEl.textContent = `${(file.size / 1024).toFixed(1)} KB • ${file.type || 'Media'}`;
 
-    alert(
-        "Please login as a passenger first."
-    );
+            thumbContainer.innerHTML = "";
+            if (file.type.startsWith("image/")) {
+                const img = document.createElement("img");
+                img.className = "media-thumbnail";
+                img.src = URL.createObjectURL(file);
+                thumbContainer.appendChild(img);
+            } else if (file.type.startsWith("video/")) {
+                thumbContainer.innerHTML = `<div style="font-size:32px;">🎬</div>`;
+            } else if (file.type.startsWith("audio/")) {
+                thumbContainer.innerHTML = `<div style="font-size:32px;">🎵</div>`;
+            }
 
-    window.location.href =
-        "passenger-login.html";
-}
+            preview.style.display = "flex";
+        }
 
+        function removeSelectedFile() {
+            currentSelectedFile = null;
+            document.getElementById("evidenceInput").value = "";
+            document.getElementById("mediaPreview").style.display = "none";
+        }
 
-// =====================================================
-// DISPLAY PASSENGER
-// =====================================================
+        // BROWSER MICROPHONE AUDIO RECORDER
+        async function toggleVoiceRecording() {
+            const btn = document.getElementById("voiceRecordBtn");
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
 
-document.getElementById(
-    "loggedPassengerName"
-).textContent =
-    passengerName || "Passenger";
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) audioChunks.push(e.data);
+                    };
 
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                        const recordedFile = new File([audioBlob], `voice_complaint_${Date.now()}.webm`, { type: "audio/webm" });
+                        handleFileSelected(recordedFile);
+                        stream.getTracks().forEach(track => track.stop());
+                    };
 
-document.getElementById(
-    "loggedPassengerPhone"
-).textContent =
-    passengerPhone || "-";
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add("recording");
+                    btn.textContent = "⏹️ Stop Recording";
+                } catch (err) {
+                    alert("Microphone access was denied or not supported by your browser.");
+                }
+            } else {
+                if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                    mediaRecorder.stop();
+                }
+                isRecording = false;
+                btn.classList.remove("recording");
+                btn.textContent = "🎙️ Record Voice Note";
+            }
+        }
 
+        // COMPLAINT SUBMISSION
+        document.getElementById("complaintForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
 
-document.getElementById(
-    "passenger_name"
-).value =
-    passengerName || "";
+            const submitBtn = document.getElementById("submitBtn");
+            const stepper = document.getElementById("progressStepper");
+            const stepText = document.getElementById("progressStepText");
+            const resultBox = document.getElementById("resultBox");
+            const errorBox = document.getElementById("errorBox");
 
+            resultBox.style.display = "none";
+            errorBox.style.display = "none";
+            stepper.style.display = "block";
+            submitBtn.disabled = true;
 
-document.getElementById(
-    "phone_number"
-).value =
-    passengerPhone || "";
+            const pnr = document.getElementById("pnr_number").value.trim();
+            const train = document.getElementById("train_number").value.trim();
+            const coach = document.getElementById("coach_number").value.trim();
+            const seat = document.getElementById("seat_number").value.trim();
+            const location = document.getElementById("location").value.trim();
+            const category = document.getElementById("selectedCategory").value;
+            const description = document.getElementById("description").value.trim();
 
-
-// =====================================================
-// FORM SUBMISSION
-// =====================================================
-
-document
-    .getElementById("complaintForm")
-    .addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            const resultBox =
-                document.getElementById(
-                    "result"
-                );
-
-            const errorBox =
-                document.getElementById(
-                    "error"
-                );
-
-            const loading =
-                document.getElementById(
-                    "loading"
-                );
-
-            const submitBtn =
-                document.getElementById(
-                    "submitBtn"
-                );
-
-
-            resultBox.style.display =
-                "none";
-
-            errorBox.style.display =
-                "none";
-
-            loading.style.display =
-                "block";
-
-            submitBtn.disabled =
-                true;
-
-
-            const evidence =
-                document.getElementById(
-                    "evidence"
-                ).files[0];
-
-
-            // =================================================
-            // CREATE FORM DATA
-            // =================================================
-
-            const formData =
-                new FormData();
-
-
-            formData.append(
-                "passenger_name",
-                passengerName || ""
-            );
-
-            formData.append(
-                "phone_number",
-                passengerPhone || ""
-            );
-
-            formData.append(
-                "pnr_number",
-                document.getElementById(
-                    "pnr_number"
-                ).value.trim()
-            );
-
-            formData.append(
-                "train_number",
-                document.getElementById(
-                    "train_number"
-                ).value.trim()
-            );
-
-            formData.append(
-                "coach_number",
-                document.getElementById(
-                    "coach_number"
-                ).value.trim()
-            );
-
-            formData.append(
-                "seat_number",
-                document.getElementById(
-                    "seat_number"
-                ).value.trim()
-            );
-
-            formData.append(
-                "location",
-                document.getElementById(
-                    "location"
-                ).value.trim()
-            );
-
-            formData.append(
-                "description",
-                document.getElementById(
-                    "description"
-                ).value.trim()
-            );
-
+            const formData = new FormData();
+            formData.append("passenger_name", passengerName || "");
+            formData.append("phone_number", passengerPhone || "");
+            formData.append("pnr_number", pnr);
+            formData.append("train_number", train);
+            formData.append("coach_number", coach);
+            formData.append("seat_number", seat);
+            formData.append("location", location);
+            formData.append("description", description);
+            if (category) formData.append("complaint_category", category);
 
             try {
-
+                let response;
                 let data;
 
+                // Case 1: Image -> ai-create
+                if (currentSelectedFile && currentSelectedFile.type.startsWith("image/")) {
+                    stepText.textContent = "🔍 Step 1/2: Analyzing image via RailMitra Vision AI...";
+                    formData.append("evidence", currentSelectedFile);
 
-                // =================================================
-                // IMAGE → AI COMPLAINT
-                // =================================================
-
-                const audioOnlyMp4 =
-                    evidence &&
-                    evidence.type === "video/mp4" &&
-                    !(await hasVideoTrack(evidence));
-
-                if (
-                    evidence &&
-                    evidence.type.startsWith(
-                        "image/"
-                    )
-                ) {
-
-                    formData.append(
-                        "evidence",
-                        evidence
-                    );
-
-
-                    const response =
-                        await fetch(
-                            API_URL +
-                            "/complaints/ai-create",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Authorization":
-                                        "Bearer " +
-                                        passengerToken
-                                },
-
-                                body: formData
-                            }
-                        );
-
-
-                    data =
-                        await response.json();
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            data.detail ||
-                            "AI complaint submission failed"
-                        );
-                    }
-
+                    response = await fetch(`${API_BASE}/complaints/ai-create`, {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${passengerToken}` },
+                        body: formData
+                    });
+                    data = await response.json();
                 }
+                // Case 2: Audio or Video evidence
+                else if (currentSelectedFile) {
+                    stepText.textContent = "📤 Step 1/2: Uploading & analyzing multi-media evidence...";
+                    const uploadForm = new FormData();
+                    uploadForm.append("file", currentSelectedFile);
 
+                    const uploadEndpoint = currentSelectedFile.type.startsWith("video/")
+                        ? `${API_BASE}/evidence/analyze-video`
+                        : `${API_BASE}/evidence/analyze-audio`;
 
-                // =================================================
-                // AUDIO → ONLY UPLOAD → COMPLAINT
-                // =================================================
+                    const uploadRes = await fetch(uploadEndpoint, {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${passengerToken}` },
+                        body: uploadForm
+                    });
+                    const uploadData = await uploadRes.json();
 
-                else if (
-                    evidence &&
-                    (
-                        evidence.type.startsWith("audio/") ||
-                        evidence.name.toLowerCase().endsWith(".mp3") ||
-                        evidence.name.toLowerCase().endsWith(".wav") ||
-                        evidence.name.toLowerCase().endsWith(".mpeg")
-                    )
-                ) {
+                    if (!uploadRes.ok) throw new Error(uploadData.detail || "Media analysis failed");
 
-                    // ---------------------------------------------
-                    // Upload audio evidence only
-                    // ---------------------------------------------
+                    stepText.textContent = "🤖 Step 2/2: Registering grievance & auto-routing...";
+                    formData.append("evidence_type", currentSelectedFile.type.startsWith("video/") ? "video" : "audio");
+                    formData.append("evidence_path", uploadData.file ? uploadData.file.path : "");
 
-                    const evidenceForm =
-                        new FormData();
-
-                    evidenceForm.append(
-                        "file",
-                        evidence
-                    );
-
-
-                    const uploadResponse =
-                        await fetch(
-                            API_URL +
-                            "/evidence/upload",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Authorization":
-                                        "Bearer " +
-                                        passengerToken
-                                },
-
-                                body: evidenceForm
-                            }
-                        );
-
-
-                    const uploadData =
-                        await uploadResponse.json();
-
-
-                    if (!uploadResponse.ok) {
-
-                        throw new Error(
-                            uploadData.detail ||
-                            "Audio evidence upload failed"
-                        );
+                    if (uploadData.ai_analysis) {
+                        formData.append("complaint_category", uploadData.ai_analysis.category || category || "Other");
+                        formData.append("priority", uploadData.ai_analysis.priority || "Medium");
+                        formData.append("department", uploadData.ai_analysis.department || "General Complaint");
                     }
 
-
-                    // ---------------------------------------------
-                    // Attach uploaded audio to complaint
-                    // ---------------------------------------------
-
-                    formData.append(
-                        "evidence_type",
-                        uploadData.evidence_type
-                    );
-
-                    formData.append(
-                        "evidence_path",
-                        uploadData.file_path
-                    );
-
-
-                    // ---------------------------------------------
-                    // Register normal complaint
-                    // ---------------------------------------------
-
-                    const complaintResponse =
-                        await fetch(
-                            API_URL +
-                            "/complaints/",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Authorization":
-                                        "Bearer " +
-                                        passengerToken
-                                },
-
-                                body: formData
-                            }
-                        );
-
-
-                    data =
-                        await complaintResponse.json();
-
-
-                    if (!complaintResponse.ok) {
-
-                        throw new Error(
-                            data.detail ||
-                            "Complaint submission failed"
-                        );
-                    }
-
+                    response = await fetch(`${API_BASE}/complaints/`, {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${passengerToken}` },
+                        body: formData
+                    });
+                    data = await response.json();
                 }
-
-
-                // =================================================
-                // VIDEO → VIDEO AI → COMPLAINT
-                // =================================================
-
-                else if (
-                    evidence &&
-                    evidence.type.startsWith(
-                        "video/"
-                    ) &&
-                    !audioOnlyMp4
-                ) {
-
-                    // ---------------------------------------------
-                    // Send video to Video AI
-                    // ---------------------------------------------
-
-                    const videoForm =
-                        new FormData();
-
-                    videoForm.append(
-                        "file",
-                        evidence
-                    );
-
-
-                    const videoResponse =
-                        await fetch(
-                            API_URL +
-                            "/evidence/analyze-video",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Authorization":
-                                        "Bearer " +
-                                        passengerToken
-                                },
-
-                                body: videoForm
-                            }
-                        );
-
-
-                    const videoData =
-                        await videoResponse.json();
-
-
-                    if (!videoResponse.ok) {
-
-                        throw new Error(
-                            videoData.detail ||
-                            "Video AI analysis failed"
-                        );
-                    }
-
-
-                    // ---------------------------------------------
-                    // Add video evidence information
-                    // ---------------------------------------------
-
-                    formData.append(
-                        "evidence_type",
-                        "video"
-                    );
-
-                    formData.append(
-                        "evidence_path",
-                        videoData.file.path
-                    );
-
-
-                    // ---------------------------------------------
-                    // Add Video AI results
-                    // ---------------------------------------------
-
-                    formData.append(
-                        "complaint_category",
-                        videoData.ai_analysis.category ||
-                        "Other"
-                    );
-
-                    formData.append(
-                        "ai_category",
-                        videoData.ai_analysis.category ||
-                        "Other"
-                    );
-
-                    formData.append(
-                        "ai_confidence",
-                        videoData.ai_analysis.confidence ||
-                        ""
-                    );
-
-                    formData.append(
-                        "priority",
-                        videoData.ai_analysis.priority ||
-                        "Medium"
-                    );
-
-                    formData.append(
-                        "department",
-                        videoData.ai_analysis.department ||
-                        "General Complaint"
-                    );
-
-
-                    // ---------------------------------------------
-                    // Register complaint
-                    // ---------------------------------------------
-
-                    const complaintResponse =
-                        await fetch(
-                            API_URL +
-                            "/complaints/",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Authorization":
-                                        "Bearer " +
-                                        passengerToken
-                                },
-
-                                body: formData
-                            }
-                        );
-
-
-                    data =
-                        await complaintResponse.json();
-
-
-                    if (!complaintResponse.ok) {
-
-                        throw new Error(
-                            data.detail ||
-                            "Complaint submission failed"
-                        );
-                    }
-
-                }
-
-
-                // =================================================
-                // NO EVIDENCE
-                // =================================================
-
+                // Case 3: Text only -> normal complaint with NLP auto-categorization
                 else {
-
-                    const response =
-                        await fetch(
-                            API_URL +
-                            "/complaints/",
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Authorization":
-                                        "Bearer " +
-                                        passengerToken
-                                },
-
-                                body: formData
-                            }
-                        );
-
-
-                    data =
-                        await response.json();
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            data.detail ||
-                            "Complaint submission failed"
-                        );
-                    }
-
+                    stepText.textContent = "🧠 Running NLP triage on grievance description...";
+                    response = await fetch(`${API_BASE}/complaints/`, {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${passengerToken}` },
+                        body: formData
+                    });
+                    data = await response.json();
                 }
 
+                if (!response.ok) {
+                    throw new Error(data.detail || data.message || "Failed to submit grievance");
+                }
 
-                // =================================================
                 // SUCCESS
-                // =================================================
+                stepper.style.display = "none";
+                resultBox.style.display = "block";
 
-                loading.style.display =
-                    "none";
+                document.getElementById("resId").textContent = `#${data.complaint_id || '-'}`;
+                document.getElementById("resCat").textContent = data.category || (data.ai_analysis ? data.ai_analysis.category : 'General');
 
-                resultBox.style.display =
-                    "block";
+                const prioEl = document.getElementById("resPrio");
+                const prioVal = data.priority || (data.ai_analysis ? data.ai_analysis.priority : 'Medium');
+                prioEl.textContent = prioVal;
+                prioEl.className = `priority-badge prio-${prioVal.toLowerCase()}`;
 
+                document.getElementById("resDept").textContent = data.department || (data.ai_analysis ? data.ai_analysis.department : 'General Helpdesk');
 
-                document.getElementById(
-                    "complaintId"
-                ).textContent =
-                    data.complaint_id || "-";
-
-
-                if (data.ai_analysis) {
-
-                    document.getElementById(
-                        "category"
-                    ).textContent =
-                        data.ai_analysis.category ||
-                        "General";
-                }
-
-                else {
-
-                    document.getElementById(
-                        "category"
-                    ).textContent =
-                        data.category ||
-                        "General";
-                }
-
-
-                document.getElementById(
-                    "status"
-                ).textContent =
-                    data.status ||
-                    "Pending";
-
-
-                // Reset form
-
-                document
-                    .getElementById(
-                        "complaintForm"
-                    )
-                    .reset();
-
-
-                // Restore passenger information
-
-                document.getElementById(
-                    "passenger_name"
-                ).value =
-                    passengerName || "";
-
-
-                document.getElementById(
-                    "phone_number"
-                ).value =
-                    passengerPhone || "";
-
+            } catch (err) {
+                stepper.style.display = "none";
+                errorBox.style.display = "block";
+                errorBox.textContent = `❌ ${err.message}`;
+            } finally {
+                submitBtn.disabled = false;
             }
+        });
 
-
-            catch (error) {
-
-                loading.style.display =
-                    "none";
-
-                submitBtn.disabled =
-                    false;
-
-                errorBox.style.display =
-                    "block";
-
-                errorBox.textContent =
-                    "❌ " + error.message;
-
-                console.error(error);
-
-                return;
-            }
-
-
-            submitBtn.disabled =
-                false;
-
+        function resetFormForNew() {
+            document.getElementById("complaintForm").reset();
+            removeSelectedFile();
+            document.querySelectorAll(".category-pill").forEach(p => p.classList.remove("selected"));
+            document.getElementById("selectedCategory").value = "";
+            document.getElementById("resultBox").style.display = "none";
         }
-    );
-
-</script>
-
+    </script>
 </body>
+
 </html>

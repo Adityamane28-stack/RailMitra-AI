@@ -7,20 +7,18 @@ from pathlib import Path
 # =====================================================
 
 backend_root = Path(__file__).resolve().parent.parent
+project_root = backend_root.parent
 
 if str(backend_root) not in sys.path:
     sys.path.insert(0, str(backend_root))
 
-
-# =====================================================
-# IMPORTS
-# =====================================================
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, RedirectResponse
 from dotenv import load_dotenv
 
+from app.config import PORT, HOST, UPLOADS_DIR
 from app.services.database import engine, Base
 
 # Database models
@@ -33,19 +31,16 @@ from app.routes.evidence import router as evidence_router
 from app.routes.admin import router as admin_router
 from app.routes.passenger import router as passenger_router
 
-# =====================================================
-# ENVIRONMENT
-# =====================================================
-
 load_dotenv()
-
 
 # =====================================================
 # CREATE DATABASE TABLES
 # =====================================================
 
-Base.metadata.create_all(bind=engine)
-
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as db_err:
+    print(f"[Warning] Table auto-creation: {db_err}")
 
 # =====================================================
 # FASTAPI APPLICATION
@@ -54,26 +49,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="RailMitra AI",
     description="AI-powered RailMadad Complaint Management System",
-    version="1.0.0"
+    version="2.0.0"
 )
-
-
-# =====================================================
-# UPLOADS / EVIDENCE IMAGES
-# =====================================================
-
-UPLOADS_DIR = backend_root / "uploads"
-
-# Create uploads folder if it doesn't exist
-UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Make uploaded files accessible through the browser
-app.mount(
-    "/uploads",
-    StaticFiles(directory=str(UPLOADS_DIR)),
-    name="uploads"
-)
-
 
 # =====================================================
 # CORS
@@ -81,93 +58,102 @@ app.mount(
 
 app.add_middleware(
     CORSMiddleware,
-
     allow_origins=[
         "http://127.0.0.1:5500",
         "http://localhost:5500",
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
         "http://127.0.0.1:8001",
-        "http://localhost:8001"
+        "http://localhost:8001",
+        "http://127.0.0.1:3000",
+        "http://localhost:3000",
+        "null"
     ],
-
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
-
     allow_methods=["*"],
-
     allow_headers=["*"],
 )
 
+# =====================================================
+# UPLOADS / EVIDENCE STATIC MOUNT
+# =====================================================
+
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount(
+    "/uploads",
+    StaticFiles(directory=str(UPLOADS_DIR)),
+    name="uploads"
+)
+
+# =====================================================
+# FRONTEND STATIC MOUNT
+# =====================================================
+
+frontend_dir = project_root / "frontend"
+if frontend_dir.exists():
+    app.mount(
+        "/frontend",
+        StaticFiles(directory=str(frontend_dir)),
+        name="frontend"
+    )
 
 # =====================================================
 # ROUTERS
 # =====================================================
 
 app.include_router(complaints_router)
-
 app.include_router(evidence_router)
-
 app.include_router(admin_router)
-
 app.include_router(passenger_router)
+
 # =====================================================
-# ROOT
+# ROOT & WEB ENTRY
 # =====================================================
 
 @app.get("/")
 def root():
-
+    index_path = project_root / "frontend" / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path))
     return {
         "message": "RailMitra AI API is running",
-        "status": "success"
+        "status": "success",
+        "docs": "/docs"
     }
-
-
-# =====================================================
-# HEALTH
-# =====================================================
 
 @app.get("/health")
 def health():
-
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "service": "RailMitra AI",
+        "version": "2.0.0"
     }
-
-
-# =====================================================
-# DATABASE TEST
-# =====================================================
 
 @app.get("/database-test")
 def database_test():
-
     try:
-
         with engine.connect():
-
             return {
                 "database": "connected",
-                "status": "success"
+                "status": "success",
+                "engine": str(engine.url).split("@")[-1] if "@" in str(engine.url) else "sqlite"
             }
-
     except Exception as e:
-
         return {
             "database": "connection failed",
             "error": str(e)
         }
-
 
 # =====================================================
 # RUN SERVER
 # =====================================================
 
 if __name__ == "__main__":
-
     import uvicorn
-
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",
-        port=8001,
+        host=HOST,
+        port=PORT,
         reload=True
     )

@@ -2,291 +2,130 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>RailMitra AI - Admin Login</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailMitra AI | Railway Admin Command Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
+<body class="auth-page">
 
-<body class="login-page">
+    <div class="auth-card">
+        <div class="auth-icon">👨‍💼</div>
+        <h1>RailMitra-AI</h1>
+        <p class="auth-subtitle">Railway Admin Command Center</p>
 
-
-    <div class="login-container">
-
-        <div class="login-card">
-
-            <div class="login-logo">
-                🚆
-            </div>
-
-            <h1>
-                RailMitra AI
-            </h1>
-
-            <p class="login-subtitle">
-                Admin Dashboard
-            </p>
-
-
-            <form id="loginForm">
-
-                <div class="form-group">
-
-                    <label for="username">
-                        Username
-                    </label>
-
-                    <input
-                        type="text"
-                        id="username"
-                        placeholder="Enter username"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="Enter password"
-                        required
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="login-button"
-                    id="loginButton"
-                >
-                    Login
-                </button>
-
-
-                <p
-                    id="loginError"
-                    class="login-error"
-                ></p>
-
-            </form>
-
-
-            <div class="login-footer">
-
-                <a href="passenger.html">
-                    ← Passenger Complaint Page
-                </a>
-
-            </div>
-
+        <!-- 1-CLICK TEST CREDENTIALS PILL -->
+        <div class="demo-credentials-pill" onclick="fillAdminDemo()" title="Click to auto-fill evaluation credentials">
+            ⚡ <strong>Click to Fill Demo Credentials:</strong> admin / admin123
         </div>
 
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Admin Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter admin username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Security Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter security password"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="button button-accent"
+                id="loginButton"
+                style="width:100%; padding:13px; font-size:15px; margin-top:6px;"
+            >
+                Authorize & Login
+            </button>
+        </form>
+
+        <div id="loginError" style="margin-top:14px; font-size:13px; color:#dc2626; min-height:18px;"></div>
+
+        <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; font-size:13px;">
+            <a href="index.html" style="color:#2563eb; text-decoration:none;">← Home Page</a>
+            <a href="passenger-login.html" style="color:#2563eb; text-decoration:none;">Passenger Login →</a>
+        </div>
     </div>
 
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
 
-<script>
+    <script>
+        const API_BASE = (
+            window.location.origin && (
+                window.location.origin.includes(":8000") ||
+                window.location.origin.includes(":8001")
+            )
+        ) ? window.location.origin : "http://127.0.0.1:8000";
 
+        function fillAdminDemo() {
+            document.getElementById("username").value = "admin";
+            document.getElementById("password").value = "admin123";
+        }
 
-// =====================================================
-// BACKEND URL
-// =====================================================
+        document.getElementById("loginForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
 
-const API_URL =
-    "http://127.0.0.1:8000";
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+            const error = document.getElementById("loginError");
+            const btn = document.getElementById("loginButton");
 
+            error.textContent = "Verifying credentials...";
+            error.style.color = "#475569";
+            btn.disabled = true;
 
-// =====================================================
-// LOGIN FORM
-// =====================================================
-
-document
-    .getElementById("loginForm")
-    .addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            const username =
-                document
-                    .getElementById("username")
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById("password")
-                    .value;
-
-
-            const error =
-                document
-                    .getElementById("loginError");
-
-
-            const loginButton =
-                document
-                    .getElementById("loginButton");
-
-
-            error.textContent =
-                "Logging in...";
-
-
-            loginButton.disabled =
-                true;
-
+            const formData = new FormData();
+            formData.append("username", username);
+            formData.append("password", password);
 
             try {
+                const response = await fetch(`${API_BASE}/admin/login`, {
+                    method: "POST",
+                    body: formData
+                });
 
-                // =========================================
-                // CREATE FORM DATA
-                // =========================================
+                const data = await response.json();
 
-                const formData =
-                    new FormData();
-
-
-                formData.append(
-                    "username",
-                    username
-                );
-
-
-                formData.append(
-                    "password",
-                    password
-                );
-
-
-                // =========================================
-                // ADMIN LOGIN
-                // =========================================
-
-                const response =
-                    await fetch(
-                        `${API_URL}/admin/login`,
-                        {
-                            method: "POST",
-                            body: formData
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                // =========================================
-                // LOGIN FAILED
-                // =========================================
-
-                if (
-                    !response.ok ||
-                    data.success !== true
-                ) {
-
-                    error.textContent =
-                        data.message ||
-                        data.detail ||
-                        "Invalid username or password.";
-
-                    loginButton.disabled =
-                        false;
-
+                if (!response.ok || data.success !== true) {
+                    error.textContent = data.message || data.detail || "Invalid admin username or password.";
+                    error.style.color = "#dc2626";
+                    btn.disabled = false;
                     return;
-
                 }
 
+                // Store Admin Token
+                localStorage.setItem("adminToken", data.access_token);
+                localStorage.setItem("adminRole", data.role || "admin");
+                localStorage.setItem("adminUsername", username);
+                sessionStorage.setItem("adminLoggedIn", "true");
 
-                // =========================================
-                // SAVE ADMIN JWT
-                // =========================================
+                error.textContent = "Authorized! Launching command dashboard...";
+                error.style.color = "#10b981";
 
-                localStorage.setItem(
-                    "adminToken",
-                    data.access_token
-                );
+                setTimeout(() => {
+                    window.location.href = "admin-dashboard.html";
+                }, 600);
 
-
-                localStorage.setItem(
-                    "adminRole",
-                    data.role || "admin"
-                );
-
-
-                localStorage.setItem(
-                    "adminUsername",
-                    username
-                );
-
-
-                // =========================================
-                // OLD FRONTEND LOGIN STATUS
-                // Keep this temporarily so the
-                // existing dashboard does not break.
-                // =========================================
-
-                sessionStorage.setItem(
-                    "adminLoggedIn",
-                    "true"
-                );
-
-
-                // =========================================
-                // REDIRECT TO DASHBOARD
-                // =========================================
-
-               window.location.href =
-               "admin-dashboard.html";
+            } catch (err) {
+                error.textContent = "Cannot connect to RailMitra AI server. Ensure backend is running.";
+                error.style.color = "#dc2626";
+                btn.disabled = false;
             }
-
-
-            catch (err) {
-
-                console.error(
-                    "Admin login error:",
-                    err
-                );
-
-
-                error.textContent =
-                    "Could not connect to RailMitra AI server.";
-
-
-                loginButton.disabled =
-                    false;
-
-            }
-
-        }
-    );
-
-</script>
-
-
+        });
+    </script>
 </body>
 
 </html>
